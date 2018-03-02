@@ -146,226 +146,58 @@ export default function playState(game) {
     //  Chance (sum of all dice)
     //  Yahtzee (5 of a kind)
 
-    var ComboSingle = function (game, value) {
 
-        this.game = game;
 
-        this.value = value;
 
-        this.score = 0;
 
-        this.played = false;
 
-        this.check = function () {
+    var combo1;
+    var combo2;
+    var combo3;
+    var combo4;
+    var combo5;
+    var combo6;
 
-            var dice = this.game.cup.getDie(this.value);
+    var upperBonus = 0;
 
-            return (dice.qty);
+    var comboThreeOfAKind;
+    var comboFourOfAKind;
+    var comboFullHouse;
+    var comboSmallStraight;
+    var comboLargeStraight;
+    var comboChance;
+    var comboYahtzee;
 
-        };
+    var total = 0;
 
-        this.play = function () {
+    var roll = 1;
+    var rollButton = null;
+    var canLock = false;
 
-            var dice = this.game.cup.getDie(this.value);
-
-            this.score = dice.total;
-            this.played = true;
-
-        }
-
-    };
-
-    var ComboChance = function (game) {
-
-        this.game = game;
-
-        this.score = 0;
-
-        this.played = false;
-
-        this.check = function () {
-
-            var set = this.game.cup.getFullSet();
-            var score = 0;
-
-            for (var i = 0; i < set.length; i++) {
-                score += set[i].total;
-            }
-
-            return score;
-
-        };
-
-        this.play = function () {
-
-            var set = this.game.cup.getFullSet();
-
-            for (var i = 0; i < set.length; i++) {
-                this.score += set[i].total;
-            }
-
-            this.played = true;
-
-        }
-
-    };
-
-    var ComboStraight = function (game, size, points) {
-
-        this.game = game;
-
-        this.size = size;
-
-        this.score = 0;
-
-        this.points = points;
-
-        this.played = false;
-
-        //  Small straight (1,2,3,4 - 2,3,4,5 - 3,4,5,6)
-        //  11223
-        //  Large straight (1,2,3,4,5 - 2,3,4,5,6)
-
-        this.check = function () {
-
-            var set = this.game.cup.getFullSet();
-
-            //  A small straight means the set cannot have a qty 3+ anywhere
-            //  A large straight means it cannot have a qty 2+ anywhere
-
-            for (var i = 0; i < set.length; i++) {
-                if (set[i].qty >= this.size) {
-                    return false;
-                }
-            }
-
-            return true;
-
-        };
-
-        this.play = function () {
-
-            this.played = true;
-
-            this.score = this.points;
-
-        };
-
-    };
-
-    var ComboFullHouse = function (game) {
-
-        this.game = game;
-
-        this.score = 0;
-
-        this.played = false;
-
-        this.check = function () {
-
-            var set = this.game.cup.getFullSet();
-
-            //  Full House (any 3 + any 2)
-
-            var any3 = false;
-            var any2 = false;
-
-            for (var i = 0; i < set.length; i++) {
-                if (set[i].qty === 3) {
-                    any3 = true;
-                }
-                else if (set[i].qty === 2) {
-                    any2 = true;
-                }
-            }
-
-            return (any3 && any2);
-
-        };
-
-        this.play = function () {
-
-            this.played = true;
-
-            this.score = 35;
-
-        };
-
-    };
-
-    var ComboXOfAKind = function (game, value, points) {
-
-        this.game = game;
-
-        this.value = value;
-
-        this.score = 0;
-
-        this.points = points;
-
-        this.played = false;
-
-        this.check = function () {
-
-            var set = this.game.cup.getFullSet();
-
-            for (var i = 0; i < set.length; i++) {
-                if (set[i].qty >= this.value) {
-                    return true;
-                }
-            }
-
-            return false;
-
-        };
-
-        this.play = function () {
-
-            if (this.points === false) {
-                var set = this.game.cup.getFullSet();
-
-                for (var i = 0; i < set.length; i++) {
-                    if (set[i].qty >= this.value) {
-                        this.score = set[i].value * this.value;
-                    }
-                }
-            }
-            else {
-                this.score = this.points;
-            }
-
-            this.played = true;
-
-        }
-
-    };
-    this.cup = null;
-
-    this.combo1 = new ComboSingle(this, 1);
-    this.combo2 = new ComboSingle(this, 2);
-    this.combo3 = new ComboSingle(this, 3);
-    this.combo4 = new ComboSingle(this, 4);
-    this.combo5 = new ComboSingle(this, 5);
-    this.combo6 = new ComboSingle(this, 6);
-
-    this.upperBonus = 0;
-
-    this.comboThreeOfAKind = new ComboXOfAKind(this, 3, false);
-    this.comboFourOfAKind = new ComboXOfAKind(this, 4, false);
-    this.comboFullHouse = new ComboFullHouse(this);
-    this.comboSmallStraight = new ComboStraight(this, 3, 30);
-    this.comboLargeStraight = new ComboStraight(this, 2, 40);
-    this.comboChance = new ComboChance(this);
-    this.comboYahtzee = new ComboXOfAKind(this, 5, 50);
-
-    this.total = 0;
-
-    this.roll = 1;
-    this.rollButton = null;
-    this.canLock = false;
+    // var this;
 
     return {
         create: function () {
+            // this = this;
+            this.cup = null;
+            combo1 = this.ComboSingle(this, 1);
+            combo2 = this.ComboSingle(this, 2);
+            combo3 = this.ComboSingle(this, 3);
+            combo4 = this.ComboSingle(this, 4);
+            combo5 = this.ComboSingle(this, 5);
+            combo6 = this.ComboSingle(this, 6);
+         
+
+            upperBonus = 0;
+
+            comboThreeOfAKind = this.ComboXOfAKind(this, 3, false);
+            comboFourOfAKind = this.ComboXOfAKind(this, 4, false);
+            comboFullHouse = this.ComboFullHouse(this);
+            comboSmallStraight = this.ComboStraight(this, 3, 30);
+            comboLargeStraight = this.ComboStraight(this, 2, 40);
+            comboChance = this.ComboChance(this);
+            comboYahtzee = this.ComboXOfAKind(this, 5, 50);
+
             this.add.image(0, 0, 'board');
 
             this.cup = new Cup(this);
@@ -391,33 +223,225 @@ export default function playState(game) {
             this.rollButton.inputEnabled = true;
             this.rollButton.input.useHandCursor = true;
             this.rollButton.events.onInputDown.add(this.doRoll, this);
-
+console.log(combo1)
         },
 
         doRoll: function () {
-
+            console.log(combo1)
             console.log("\n\nRoll " + this.roll);
 
             this.cup.shake();
 
-            this.roll++;
+            this.roll += 1;
 
             this.canLock = true;
 
-            console.log('1s', this.combo1.check());
-            console.log('2s', this.combo2.check());
-            console.log('3s', this.combo3.check());
-            console.log('4s', this.combo4.check());
-            console.log('5s', this.combo5.check());
-            console.log('6s', this.combo6.check());
-            console.log('3ofaK', this.comboThreeOfAKind.check());
-            console.log('4ofaK', this.comboFourOfAKind.check());
-            console.log('full', this.comboFullHouse.check());
-            console.log('sm. straight', this.comboSmallStraight.check());
-            console.log('lg. straight', this.comboLargeStraight.check());
-            console.log('yahtzee', this.comboYahtzee.check());
-            console.log('chance', this.comboChance.check());
+            console.log('1s', combo1.check());
+            console.log('2s', combo2.check());
+            console.log('3s', combo3.check());
+            console.log('4s', combo4.check());
+            console.log('5s', combo5.check());
+            console.log('6s', combo6.check());
+            console.log('3ofaK', comboThreeOfAKind.check());
+            console.log('4ofaK', comboFourOfAKind.check());
+            console.log('full', comboFullHouse.check());
+            console.log('sm. straight', comboSmallStraight.check());
+            console.log('lg. straight', comboLargeStraight.check());
+            console.log('yahtzee', comboYahtzee.check());
+            console.log('chance', comboChance.check());
+
+        },
+        ComboXOfAKind: function (game, value, points) {
+
+            this.game = game;
+
+            this.value = value;
+
+            this.score = 0;
+
+            this.points = points;
+
+            this.played = false;
+
+            this.check = function () {
+
+                var set = this.game.cup.getFullSet();
+
+                for (var i = 0; i < set.length; i++) {
+                    if (set[i].qty >= this.value) {
+                        return true;
+                    }
+                }
+
+                return false;
+
+            };
+
+            this.play = function () {
+
+                if (this.points === false) {
+                    var set = this.game.cup.getFullSet();
+
+                    for (var i = 0; i < set.length; i++) {
+                        if (set[i].qty >= this.value) {
+                            this.score = set[i].value * this.value;
+                        }
+                    }
+                }
+                else {
+                    this.score = this.points;
+                }
+
+                this.played = true;
+
+            }
+
+        },
+        ComboFullHouse: function (game) {
+
+            this.game = game;
+
+            this.score = 0;
+
+            this.played = false;
+
+            this.check = function () {
+
+                var set = this.game.cup.getFullSet();
+
+                //  Full House (any 3 + any 2)
+
+                var any3 = false;
+                var any2 = false;
+
+                for (var i = 0; i < set.length; i++) {
+                    if (set[i].qty === 3) {
+                        any3 = true;
+                    }
+                    else if (set[i].qty === 2) {
+                        any2 = true;
+                    }
+                }
+
+                return (any3 && any2);
+
+            };
+
+            this.play = function () {
+
+                this.played = true;
+
+                this.score = 35;
+
+            };
+
+        },
+        ComboSingle: function (game, value) {
+            let self = this;
+            self.game = game;
+
+            self.value = value;
+
+            self.score = 0;
+
+            self.played = false;
+
+            self.check = function () {
+
+                var dice = self.game.cup.getDie(this.value);
+
+                return (dice.qty);
+
+            };
+
+            self.play = function () {
+
+                var dice = self.game.cup.getDie(self.value);
+
+                self.score = dice.total;
+                self.played = true;
+
+            }
+
+        },
+
+        ComboChance: function (game) {
+
+            this.game = game;
+
+            this.score = 0;
+
+            this.played = false;
+
+            this.check = function () {
+
+                var set = this.game.cup.getFullSet();
+                var score = 0;
+
+                for (var i = 0; i < set.length; i++) {
+                    score += set[i].total;
+                }
+
+                return score;
+
+            };
+
+            this.play = function () {
+
+                var set = this.game.cup.getFullSet();
+
+                for (var i = 0; i < set.length; i++) {
+                    this.score += set[i].total;
+                }
+
+                this.played = true;
+
+            }
+
+        },
+
+        ComboStraight: function (game, size, points) {
+
+            this.game = game;
+
+            this.size = size;
+
+            this.score = 0;
+
+            this.points = points;
+
+            this.played = false;
+
+            //  Small straight (1,2,3,4 - 2,3,4,5 - 3,4,5,6)
+            //  11223
+            //  Large straight (1,2,3,4,5 - 2,3,4,5,6)
+
+            this.check = function () {
+
+                var set = this.game.cup.getFullSet();
+
+                //  A small straight means the set cannot have a qty 3+ anywhere
+                //  A large straight means it cannot have a qty 2+ anywhere
+
+                for (var i = 0; i < set.length; i++) {
+                    if (set[i].qty >= this.size) {
+                        return false;
+                    }
+                }
+
+                return true;
+
+            };
+
+            this.play = function () {
+
+                this.played = true;
+
+                this.score = this.points;
+
+            };
 
         }
+
     }
 }
